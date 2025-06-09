@@ -11,6 +11,8 @@ npm start
 
 Sunucu calistiktan sonra kitap, kullanici ve odunc islemleri icin `/api/books`, `/api/users` ve `/api/borrow` adreslerini kullanabilirsiniz.
 
+`POST /api/borrow` uzerinden okul numarasi ve ISBN gondererek kitap odunc alabilirsiniz. `PUT /api/borrow/:id/return` ile kitap iade edilir ve kitap adedi otomatik guncellenir.
+
 ### Excel Aktarim
 - `/api/books/export` ve `/api/users/export` tum kayitlari Excel dosyasi olarak indirir.
 - `/api/books/import` ve `/api/users/import` yollarina Excel dosyasi gondererek toplu veri ekleyebilirsiniz. Dosya gonderiminde `file` alanini kullanin.
@@ -46,3 +48,4 @@ Sunucu calistiktan sonra kitap, kullanici ve odunc islemleri icin `/api/books`, 
 - `borrowDate`
 - `dueDate`
 - `returnDate`
+  - `returnDate` (iade tarihi)

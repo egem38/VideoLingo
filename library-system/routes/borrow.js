@@ -11,10 +11,14 @@ router.post('/', (req, res) => {
       return res.status(400).json({ error: 'Kullanici bulunamadi' });
     }
 
-    db.get('SELECT id FROM books WHERE isbn = ?', [isbn], (err2, bookRow) => {
-      if (err2 || !bookRow) {
-        return res.status(400).json({ error: 'Kitap bulunamadi' });
-      }
+  db.get('SELECT id, mevcut FROM books WHERE isbn = ?', [isbn], (err2, bookRow) => {
+    if (err2 || !bookRow) {
+      return res.status(400).json({ error: 'Kitap bulunamadi' });
+    }
+
+    if (bookRow.mevcut <= 0) {
+      return res.status(400).json({ error: 'Kitap mevcut degil' });
+    }
 
       const stmt = db.prepare(
         'INSERT INTO borrow (userId, bookId, borrowDate, dueDate, returnDate) VALUES (?, ?, ?, ?, ?)'
@@ -37,6 +41,7 @@ router.post('/', (req, res) => {
             dueDate,
             returnDate
           });
+          db.run('UPDATE books SET mevcut = mevcut - 1 WHERE id = ?', [bookRow.id]);
         }
       );
       stmt.finalize();
@@ -57,6 +62,28 @@ router.get('/', (req, res) => {
       return res.status(500).json({ error: err.message });
     }
     res.json(rows);
+  });
+});
+
+// Kitabi iade et
+router.put('/:id/return', (req, res) => {
+  const { id } = req.params;
+  const returnDate = new Date().toISOString();
+
+  db.get('SELECT bookId, returnDate FROM borrow WHERE id = ?', [id], (err, row) => {
+    if (err || !row) {
+      return res.status(404).json({ error: 'Kayit bulunamadi' });
+    }
+    if (row.returnDate) {
+      return res.status(400).json({ error: 'Kitap zaten iade edilmis' });
+    }
+    db.run('UPDATE borrow SET returnDate = ? WHERE id = ?', [returnDate, id], err2 => {
+      if (err2) {
+        return res.status(400).json({ error: err2.message });
+      }
+      db.run('UPDATE books SET mevcut = mevcut + 1 WHERE id = ?', [row.bookId]);
+      res.json({ id: parseInt(id, 10), returnDate });
+    });
   });
 });
 
