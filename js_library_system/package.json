@@ -1,0 +1,13 @@
+{
+  "name": "school-library-system",
+  "version": "1.0.0",
+  "description": "Simple school library automation system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2"
+  }
+}
